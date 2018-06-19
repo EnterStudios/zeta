@@ -14,6 +14,7 @@ export default (function modelExporter () {
     let _graph;
     let _showExportSuccess;
     let _showExportFailure;
+    let _provideDefaultAttributeProperties;
 
     exportModel = function(graph) {
         $("[data-hide]").on("click", function(){
@@ -21,8 +22,9 @@ export default (function modelExporter () {
         });
 
         _graph = graph;
-        const nodes = _buildNodes();
         const edges = _buildEdges();
+        const nodes = _buildNodes();
+
         let uiState = JSON.stringify(_graph.toJSON());
 
         let data = JSON.stringify({
@@ -57,6 +59,9 @@ export default (function modelExporter () {
     _buildNodes = function() {
         let elements = [];
         _graph.getElements().forEach(function(ele) {
+
+
+            console.log(ele);
             let element = {
                 name: ele.id,
                 className: ele.attributes.className,
@@ -74,7 +79,7 @@ export default (function modelExporter () {
 
                     if(attrName !== undefined) {
                         element.attributes.push(attrName);
-                        element.attributeValues[attrName.name] = { value: attrs[key].text[0] ||'', type: attrName.type };
+                        element.attributeValues[attrName.name] = { value: attrs[key].text ||'', type: attrName.type };
                     }
                 }
             }
@@ -103,6 +108,8 @@ export default (function modelExporter () {
     _buildEdges = function() {
         let elements = [];
         _graph.getLinks().forEach(function(link) {
+
+            console.log(link);
             let element = {
                 name: link.id,
                 referenceName: link.attributes.mReference,
@@ -116,7 +123,22 @@ export default (function modelExporter () {
             element.sourceNodeName = link.attributes.source.id;
             element.targetNodeName = link.attributes.target.id;
 
+            let referenceType = link.attributes.mReference;
+
+            let linkAttributeKeys = Object.keys(link.attributes);
+
+            let cde = linkAttributeKeys.find(attrKey => attrKey.toLowerCase() === referenceType.toLowerCase() );
+
+            let xyz = link.attributes[cde];
             // add attributes
+            let def = Array.isArray(xyz);
+
+            if (def) {
+
+            } else {
+
+            }
+
             link.attributes.labels.forEach(function(label) {
                 let attributeName = GeneratorFactory.linkHelper.mapping[link.attributes.mReference][label.id];
                 element.attributes[attributeName] = [label.attrs.text.text];
@@ -141,6 +163,10 @@ export default (function modelExporter () {
                 break;
         }
         return ret;
+    };
+
+    _provideDefaultAttributeProperties = function() {
+
     };
 
     _showExportSuccess = function() {
